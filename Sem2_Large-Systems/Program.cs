@@ -22,13 +22,9 @@ builder.Services.AddScoped<IDataAccess, DataAccess.DataAccess>(sp =>
                new DataAccess.DataAccess(connectionString));
 
 builder.Services.AddScoped<TicketService>();
-
 builder.Services.AddScoped<WarehouseService>();
-
 builder.Services.AddScoped<JobService>();
-
 builder.Services.AddScoped<AuditTrailService>();
-
 builder.Services.AddScoped<ChemicalService>();
 
 var app = builder.Build();
@@ -41,7 +37,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -52,9 +47,18 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Default Route (will map to any controller/action pair)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// Optionally, add a specific route for TicketController if needed
+app.MapControllerRoute(
+    name: "ticket",
+    pattern: "Ticket/{action=TicketSuccess}/{id?}",
+    defaults: new { controller = "Ticket", action = "TicketSuccess" }
+);
+
 app.MapRazorPages();
 
 await EnsureRolesAsync(app);

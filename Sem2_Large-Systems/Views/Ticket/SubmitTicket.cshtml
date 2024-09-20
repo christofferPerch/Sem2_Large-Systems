@@ -6,7 +6,8 @@
 
 <h2>Submit a New Ticket</h2>
 
-<form asp-action="SubmitTicket" method="post">
+<form asp-controller="Ticket" asp-action="SubmitTicket" method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <label asp-for="DriverName"></label>
         <input asp-for="DriverName" class="form-control" />

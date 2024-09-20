@@ -18,19 +18,36 @@ namespace Sem2_Large_Systems.Controllers
             _jobService = jobService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var tickets = await _ticketService.GetAllTickets();
             return View(tickets);
         }
 
+        [HttpGet]
+        public IActionResult SubmitTicket()
+        {
+            return View();
+        }
+        public IActionResult TicketSuccess()
+        {
+            return View();
+        }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitTicket(Ticket ticket)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                // Model validation failed, return to form with validation errors.
+                return View(ticket);
+            }
+
+            try
             {
                 var ticketId = await _ticketService.AddTicket(ticket);
-
                 var warehouse = await _warehouseService.CheckWarehouseCapacity(ticket.ChemicalType, ticket.Quantity);
 
                 if (warehouse != null)
@@ -38,29 +55,30 @@ namespace Sem2_Large_Systems.Controllers
                     var job = new Job
                     {
                         TicketID = ticketId,
-                        StorageLocation = warehouse.StorageLocation, 
+                        StorageLocation = warehouse.StorageLocation,
                         JobType = "Store",
                         Status = "Created"
                     };
 
                     await _jobService.AddJob(job);
 
+                    // Redirect to TicketSuccess view after successfully adding the job
                     return RedirectToAction("TicketSuccess");
                 }
                 else
                 {
+                    // If the warehouse does not have enough capacity, show error and return to form.
                     ModelState.AddModelError("", "Warehouse does not have enough capacity to store the chemicals.");
                     return View(ticket);
                 }
             }
-
-            return View(ticket); 
+            catch (Exception ex)
+            {
+                // Handle any unexpected errors (optional: log the error)
+                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
+                return View(ticket);
+            }
         }
 
-
-        public IActionResult TicketSuccess()
-        {
-            return View();
-        }
     }
 }
