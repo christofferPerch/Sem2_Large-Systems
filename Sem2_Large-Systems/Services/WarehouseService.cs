@@ -1,35 +1,33 @@
 ﻿using DataAccess;
+using Sem2_Large_Systems.IServices;
 using Sem2_Large_Systems.Models;
 
 namespace Sem2_Large_Systems.Services {
-    public class WarehouseService {
+    public class WarehouseService : IWarehouseService{
+
         private readonly IDataAccess _dataAccess;
 
         public WarehouseService(IDataAccess dataAccess) {
             _dataAccess = dataAccess ?? throw new ArgumentNullException(nameof(dataAccess));
         }
 
-        // Get warehouse by ID
         public async Task<Warehouse?> GetWarehouseById(int id) {
             var sql = @"SELECT * FROM Warehouses WHERE WarehouseID = @Id";
             var parameters = new { Id = id };
             return await _dataAccess.GetById<Warehouse>(sql, parameters);
         }
 
-        // Get all warehouses
         public async Task<List<Warehouse>> GetAllWarehouses() {
             var sql = @"SELECT * FROM Warehouses";
             return await _dataAccess.GetAll<Warehouse>(sql);
         }
 
-        // Add a new warehouse
         public async Task AddWarehouse(Warehouse warehouse) {
             var sql = @"INSERT INTO Warehouses (Capacity, CurrentLoad, ChemicalClassRestrictions)
                         VALUES (@Capacity, @CurrentLoad, @ChemicalClassRestrictions)";
             await _dataAccess.Insert(sql, warehouse);
         }
 
-        // Update an existing warehouse
         public async Task UpdateWarehouse(Warehouse warehouse) {
             var sql = @"UPDATE Warehouses
                         SET Capacity = @Capacity, CurrentLoad = @CurrentLoad, ChemicalClassRestrictions = @ChemicalClassRestrictions
@@ -37,7 +35,6 @@ namespace Sem2_Large_Systems.Services {
             await _dataAccess.Update(sql, warehouse);
         }
 
-        // Delete a warehouse by ID
         public async Task DeleteWarehouse(int id) {
             var sql = @"DELETE FROM Warehouses WHERE WarehouseID = @Id";
             var parameters = new { Id = id };
