@@ -18,35 +18,51 @@ namespace Sem2_Large_Systems.Services
 
         public async Task<Chemical?> GetChemicalById(int id)
         {
-            var sql = @"SELECT * FROM Chemicals WHERE ChemicalID = @Id";
+            var sql = @"SELECT * FROM Chemical WHERE Id = @Id";
             var parameters = new { Id = id };
             return await _dataAccess.GetById<Chemical>(sql, parameters);
         }
 
         public async Task<List<Chemical>> GetAllChemicals()
         {
-            var sql = @"SELECT * FROM Chemicals";
+            var sql = @"SELECT * FROM Chemical";
             return await _dataAccess.GetAll<Chemical>(sql);
         }
 
         public async Task AddChemical(Chemical chemical)
         {
-            var sql = @"INSERT INTO Chemicals (Type, Quantity, StorageLocation, Class)
-                        VALUES (@Type, @Quantity, @StorageLocation, @Class)";
-            await _dataAccess.Insert(sql, chemical);
+            var sql = @"INSERT INTO Chemical (ChemicalName, Quantity, WarehouseId, Class)
+                        VALUES (@ChemicalName, @Quantity, @WarehouseId, @Class)";
+            var parameters = new
+            {
+                chemical.ChemicalName,
+                chemical.Quantity,
+                chemical.WarehouseId,
+                Class = (int)chemical.Class  // Using enum as an integer
+            };
+            await _dataAccess.Insert(sql, parameters);
         }
 
         public async Task UpdateChemical(Chemical chemical)
         {
-            var sql = @"UPDATE Chemicals
-                        SET Type = @Type, Quantity = @Quantity, StorageLocation = @StorageLocation, Class = @Class
-                        WHERE ChemicalID = @ChemicalID";
-            await _dataAccess.Update(sql, chemical);
+            var sql = @"UPDATE Chemical
+                        SET ChemicalName = @ChemicalName, Quantity = @Quantity, 
+                            WarehouseId = @WarehouseId, Class = @Class
+                        WHERE Id = @Id";
+            var parameters = new
+            {
+                chemical.ChemicalName,
+                chemical.Quantity,
+                chemical.WarehouseId,
+                Class = (int)chemical.Class,  // Using enum as an integer
+                chemical.Id
+            };
+            await _dataAccess.Update(sql, parameters);
         }
 
         public async Task DeleteChemical(int id)
         {
-            var sql = @"DELETE FROM Chemicals WHERE ChemicalID = @Id";
+            var sql = @"DELETE FROM Chemical WHERE Id = @Id";
             var parameters = new { Id = id };
             await _dataAccess.Delete(sql, parameters);
         }

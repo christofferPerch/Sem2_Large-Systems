@@ -2,11 +2,12 @@
 {
     public class Job
     {
-        public int JobID { get; set; }
-        public int TicketID { get; set; } 
-        public string StorageLocation { get; set; }
-        public string JobType { get; set; }
-        public string Status { get; set; } 
-        public Ticket Ticket { get; set; } 
+        public int Id { get; set; }
+        public int TicketId { get; set; }
+        public int WarehouseId { get; set; }
+        public string Status { get; set; }
+        public Ticket Ticket { get; set; }  
+        public Warehouse Warehouse { get; set; }
+        public ICollection<AuditTrail> AuditTrails { get; set; }
     }
 }

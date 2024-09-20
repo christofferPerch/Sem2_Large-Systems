@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Sem2_Large_Systems.ViewModels.JobViewModel>
+
+<h2>Jobs</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Driver Name</th>
+            <th>Warehouse Name</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var job in Model)
+        {
+            <tr>
+                <td>@job.JobId</td>
+                <td>@(job.DriverName ?? "N/A")</td>  <!-- Use DriverName from JobViewModel -->
+                <td>@(job.WarehouseName ?? "N/A")</td>  <!-- Use WarehouseName from JobViewModel -->
+                <td>@job.JobStatus</td>  <!-- Use JobStatus from JobViewModel -->
+            </tr>
+        }
+    </tbody>
+</table>

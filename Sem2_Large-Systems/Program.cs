@@ -1,8 +1,10 @@
 using DataAccess;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Sem2_Large_Systems.Data;
 using Sem2_Large_Systems.Services;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +28,14 @@ builder.Services.AddScoped<WarehouseService>();
 builder.Services.AddScoped<JobService>();
 builder.Services.AddScoped<AuditTrailService>();
 builder.Services.AddScoped<ChemicalService>();
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { new CultureInfo("en-US") };  
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 var app = builder.Build();
 
@@ -52,12 +62,12 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Optionally, add a specific route for TicketController if needed
 app.MapControllerRoute(
     name: "ticket",
-    pattern: "Ticket/{action=TicketSuccess}/{id?}",
-    defaults: new { controller = "Ticket", action = "TicketSuccess" }
+    pattern: "Ticket/{action=Index}/{id?}",
+    defaults: new { controller = "Ticket", action = "Index" }
 );
+
 
 app.MapRazorPages();
 

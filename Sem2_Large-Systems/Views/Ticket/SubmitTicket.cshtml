@@ -1,42 +1,80 @@
-﻿@model Sem2_Large_Systems.Models.Ticket
+﻿@model Sem2_Large_Systems.ViewModels.TicketCreateViewModel
+@inject Sem2_Large_Systems.Services.WarehouseService _warehouseService
+@inject Sem2_Large_Systems.Services.ChemicalService _chemicalService
 
-@{
-    ViewData["Title"] = "Submit Ticket";
-}
+<h2>Create a New Ticket</h2>
 
-<h2>Submit a New Ticket</h2>
-
-<form asp-controller="Ticket" asp-action="SubmitTicket" method="post">
-    @Html.AntiForgeryToken()
+<form asp-action="SubmitTicket" method="post">
+    <!-- Driver Name Input -->
     <div class="form-group">
         <label asp-for="DriverName"></label>
         <input asp-for="DriverName" class="form-control" />
-        <span asp-validation-for="DriverName" class="text-danger"></span>
     </div>
 
+    <!-- Warehouse Dropdown -->
     <div class="form-group">
-        <label asp-for="ChemicalType"></label>
-        <select asp-for="ChemicalType" class="form-control">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
+        <label asp-for="WarehouseId">Select Warehouse</label>
+        <select asp-for="WarehouseId" class="form-control">
+            <option value="">Select Warehouse</option>
+            @foreach (var warehouse in await _warehouseService.GetAllWarehouses())
+            {
+                <option value="@warehouse.Id">@warehouse.WarehouseName</option>
+            }
         </select>
-        <span asp-validation-for="ChemicalType" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Quantity"></label>
-        <input asp-for="Quantity" type="number" class="form-control" />
-        <span asp-validation-for="Quantity" class="text-danger"></span>
+    <!-- Status is automatically set to 'Pending' -->
+    <input type="hidden" asp-for="Status" value="Pending" />
+
+    <!-- Chemicals Section -->
+    <div id="chemicals-section">
+        <h4>Add Chemicals</h4>
+        <div id="chemical-entries">
+            <!-- Chemical fields will be dynamically added here -->
+        </div>
+
+        <button type="button" id="add-chemical-btn" class="btn btn-secondary">Add Chemical</button>
     </div>
 
-    <div class="form-group">
-        <label asp-for="ArrivalDate"></label>
-        <input asp-for="ArrivalDate" type="date" class="form-control" />
-        <span asp-validation-for="ArrivalDate" class="text-danger"></span>
-    </div>
+    <br />
 
-    <button type="submit" class="btn btn-primary">Submit Ticket</button>
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var chemicalIndex = 0;  // To keep track of the number of chemical fields
+
+        $('#add-chemical-btn').on('click', function() {
+            var chemicalsDiv = $('#chemical-entries');
+
+            // Create a new chemical input block
+            var chemicalBlock = `
+                <div class="form-group">
+                    <label>Chemical</label>
+                    <select name="Chemicals[${chemicalIndex}].ChemicalId" class="form-control">
+                        <option value="">Select Chemical</option>
+    @foreach (var chemical in await _chemicalService.GetAllChemicals())
+    {
+                                <option value="@chemical.Id">@chemical.ChemicalName</option>
+    }
+                    </select>
+                </div>
+
+            <div class="form-group">
+                <label>Quantity</label>
+                <input type="number" name="Chemicals[0].Quantity" class="form-control" step="1" min="1" />
+            </div>
+
+
+                <hr />
+            `;
+
+            chemicalsDiv.append(chemicalBlock);
+            chemicalIndex++;  // Increment the index for the next chemical block
+        });
+    });
+</script>

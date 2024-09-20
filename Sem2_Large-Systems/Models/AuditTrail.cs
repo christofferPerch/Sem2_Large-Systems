@@ -2,12 +2,11 @@
 {
     public class AuditTrail
     {
-        public int LogID { get; set; }
-        public int JobID { get; set; } 
+        public int Id { get; set; }
+        public int JobId { get; set; }
         public DateTime Timestamp { get; set; }
-        public string Action { get; set; } 
-        public string ChemicalType { get; set; }
-        public double Quantity { get; set; }
+        public string Description { get; set; }
         public Job Job { get; set; }
     }
+
 }

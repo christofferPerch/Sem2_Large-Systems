@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sem2_Large_Systems.Models;
 using Sem2_Large_Systems.Services;
+using Sem2_Large_Systems.ViewModels;
+using System;
 using System.Threading.Tasks;
 
 namespace Sem2_Large_Systems.Controllers
@@ -8,13 +10,11 @@ namespace Sem2_Large_Systems.Controllers
     public class TicketController : Controller
     {
         private readonly TicketService _ticketService;
-        private readonly WarehouseService _warehouseService;
         private readonly JobService _jobService;
 
-        public TicketController(TicketService ticketService, WarehouseService warehouseService, JobService jobService)
+        public TicketController(TicketService ticketService, JobService jobService)
         {
             _ticketService = ticketService;
-            _warehouseService = warehouseService;
             _jobService = jobService;
         }
 
@@ -22,61 +22,62 @@ namespace Sem2_Large_Systems.Controllers
         public async Task<IActionResult> Index()
         {
             var tickets = await _ticketService.GetAllTickets();
-            return View(tickets);
+            return View(tickets);  // Ensure you have the Index view
         }
 
+        // Display the form for submitting a new ticket
         [HttpGet]
         public IActionResult SubmitTicket()
         {
-            return View();
+            return View(new TicketCreateViewModel());
         }
+
+        // Ticket submission success page
         public IActionResult TicketSuccess()
         {
             return View();
         }
 
+        // Handle ticket submission with multiple chemicals
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitTicket(Ticket ticket)
+        public async Task<IActionResult> SubmitTicket(TicketCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                // Model validation failed, return to form with validation errors.
-                return View(ticket);
+                return View(model);
             }
 
             try
             {
-                var ticketId = await _ticketService.AddTicket(ticket);
-                var warehouse = await _warehouseService.CheckWarehouseCapacity(ticket.ChemicalType, ticket.Quantity);
-
-                if (warehouse != null)
+                // Create and save the Ticket
+                var ticket = new Ticket
                 {
-                    var job = new Job
+                    DriverName = model.DriverName,
+                    Status = model.Status
+                };
+                var ticketId = await _ticketService.AddTicket(ticket);
+
+                // Add chemicals to the ticket
+                foreach (var chemical in model.Chemicals)
+                {
+                    var ticketChemical = new TicketChemical
                     {
-                        TicketID = ticketId,
-                        StorageLocation = warehouse.StorageLocation,
-                        JobType = "Store",
-                        Status = "Created"
+                        TicketId = ticketId,
+                        ChemicalId = chemical.ChemicalId,
+                        Quantity = chemical.Quantity  // Ensure this captures the correct decimal value
                     };
 
-                    await _jobService.AddJob(job);
+                    await _ticketService.AddTicketChemical(ticketChemical);
+                }
 
-                    // Redirect to TicketSuccess view after successfully adding the job
-                    return RedirectToAction("TicketSuccess");
-                }
-                else
-                {
-                    // If the warehouse does not have enough capacity, show error and return to form.
-                    ModelState.AddModelError("", "Warehouse does not have enough capacity to store the chemicals.");
-                    return View(ticket);
-                }
+                // Redirect to the success page
+                return RedirectToAction("TicketSuccess");
             }
             catch (Exception ex)
             {
-                // Handle any unexpected errors (optional: log the error)
-                ModelState.AddModelError("", "An unexpected error occurred. Please try again.");
-                return View(ticket);
+                ModelState.AddModelError("", "An error occurred. Please try again.");
+                return View(model);
             }
         }
 
