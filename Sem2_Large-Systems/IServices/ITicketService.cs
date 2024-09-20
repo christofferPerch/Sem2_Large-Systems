@@ -8,7 +8,7 @@ namespace Sem2_Large_Systems.IServices
     {
         Task<Ticket?> GetTicketById(int id);
         Task<List<Ticket>> GetAllTickets();
-        Task AddTicket(Ticket ticket);
+        Task <int> AddTicket(Ticket ticket);
         Task UpdateTicket(Ticket ticket);
         Task DeleteTicket(int id);
     }

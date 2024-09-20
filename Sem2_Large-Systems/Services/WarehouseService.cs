@@ -22,6 +22,17 @@ namespace Sem2_Large_Systems.Services {
             return await _dataAccess.GetAll<Warehouse>(sql);
         }
 
+        public async Task<Warehouse?> CheckWarehouseCapacity(string chemicalType, double quantity)
+        {
+            var sql = @"SELECT * FROM Warehouses
+                        WHERE ChemicalClassRestrictions NOT LIKE '%' + @ChemicalType + '%'
+                        AND Capacity - CurrentLoad >= @Quantity";
+
+            var parameters = new { ChemicalType = chemicalType, Quantity = quantity };
+            return await _dataAccess.GetById<Warehouse>(sql, parameters);
+        }
+
+
         public async Task AddWarehouse(Warehouse warehouse) {
             var sql = @"INSERT INTO Warehouses (Capacity, CurrentLoad, ChemicalClassRestrictions)
                         VALUES (@Capacity, @CurrentLoad, @ChemicalClassRestrictions)";

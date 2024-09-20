@@ -1,6 +1,8 @@
+using DataAccess;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sem2_Large_Systems.Data;
+using Sem2_Large_Systems.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,14 +11,25 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IDataAccess, DataAccess.DataAccess>(sp =>
+               new DataAccess.DataAccess(connectionString));
+
+builder.Services.AddScoped<TicketService>();
+
+builder.Services.AddScoped<WarehouseService>();
+
+builder.Services.AddScoped<JobService>();
+
+builder.Services.AddScoped<AuditTrailService>();
+
+builder.Services.AddScoped<ChemicalService>();
 
 var app = builder.Build();
 

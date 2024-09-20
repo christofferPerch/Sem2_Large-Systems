@@ -34,6 +34,8 @@ namespace DataAccess
 
         public Task<int> Insert(string sql, object parameters) =>
             WithConnection(db => db.ExecuteAsync(sql, parameters));
+        public Task<T> InsertAndGetId<T>(string sql, object parameters) =>
+            WithConnection(db => db.QuerySingleAsync<T>(sql, parameters));
 
         public Task<int> Update(string sql, object parameters) =>
             WithConnection(db => db.ExecuteAsync(sql, parameters));

@@ -1,0 +1,41 @@
+﻿@model Sem2_Large_Systems.Models.Ticket
+
+@{
+    ViewData["Title"] = "Submit Ticket";
+}
+
+<h2>Submit a New Ticket</h2>
+
+<form asp-action="SubmitTicket" method="post">
+    <div class="form-group">
+        <label asp-for="DriverName"></label>
+        <input asp-for="DriverName" class="form-control" />
+        <span asp-validation-for="DriverName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ChemicalType"></label>
+        <select asp-for="ChemicalType" class="form-control">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+        <span asp-validation-for="ChemicalType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Quantity"></label>
+        <input asp-for="Quantity" type="number" class="form-control" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ArrivalDate"></label>
+        <input asp-for="ArrivalDate" type="date" class="form-control" />
+        <span asp-validation-for="ArrivalDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Ticket</button>
+</form>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

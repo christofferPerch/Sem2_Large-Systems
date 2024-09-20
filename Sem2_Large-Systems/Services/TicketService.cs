@@ -29,11 +29,13 @@ namespace Sem2_Large_Systems.Services
             return await _dataAccess.GetAll<Ticket>(sql);
         }
 
-        public async Task AddTicket(Ticket ticket)
+        public async Task<int> AddTicket(Ticket ticket)
         {
             var sql = @"INSERT INTO Tickets (DriverName, ChemicalType, Quantity, ArrivalDate, Status)
-                        VALUES (@DriverName, @ChemicalType, @Quantity, @ArrivalDate, @Status)";
-            await _dataAccess.Insert(sql, ticket);
+                OUTPUT INSERTED.TicketID  -- Return the newly inserted TicketID
+                VALUES (@DriverName, @ChemicalType, @Quantity, @ArrivalDate, @Status)";
+
+            return await _dataAccess.InsertAndGetId<int>(sql, ticket);  
         }
 
         public async Task UpdateTicket(Ticket ticket)
