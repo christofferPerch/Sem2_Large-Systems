@@ -26,8 +26,16 @@ namespace DataAccess
             }
         }
 
-        public Task<T?> GetById<T>(string sql, object parameters) =>
-            WithConnection(db => db.QueryAsync<T>(sql, parameters).ContinueWith(t => t.Result.FirstOrDefault()));
+        public Task<T?> GetById<T>(string sql, object parameters)
+        {
+            return WithConnection(db =>
+            {
+                // Handle empty result sets with FirstOrDefault
+                return db.QueryAsync<T>(sql, parameters)
+                         .ContinueWith(t => t.Result.FirstOrDefault());  // FirstOrDefault instead of SingleOrDefault
+            });
+        }
+
 
         public Task<List<T>> GetAll<T>(string sql, object? parameters = null) =>
             WithConnection(db => db.QueryAsync<T>(sql, parameters).ContinueWith(t => t.Result.ToList()));

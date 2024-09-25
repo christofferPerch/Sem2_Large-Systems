@@ -11,10 +11,12 @@ namespace Sem2_Large_Systems.Services
     public class JobService : IJobService
     {
         private readonly IDataAccess _dataAccess;
+        private readonly AuditTrailService _auditTrailService;
 
-        public JobService(IDataAccess dataAccess)
+        public JobService(IDataAccess dataAccess, AuditTrailService auditTrailService)
         {
             _dataAccess = dataAccess ?? throw new ArgumentNullException(nameof(dataAccess));
+            _auditTrailService = auditTrailService;
         }
 
         public async Task<Job?> GetJobById(int id)
@@ -44,6 +46,7 @@ namespace Sem2_Large_Systems.Services
         {
             var sql = @"INSERT INTO Job (TicketId, WarehouseId, Status)
                         VALUES (@TicketId, @WarehouseId, @Status)";
+
             var parameters = new
             {
                 job.TicketId,
@@ -51,6 +54,19 @@ namespace Sem2_Large_Systems.Services
                 job.Status
             };
             await _dataAccess.Insert(sql, parameters);
+
+            //var jobId = await _dataAccess.InsertAndGetId<int>(sql, parameters);  
+
+            //fix id audittrail
+            /*var auditTrail = new AuditTrail
+            {
+                JobId = 1,
+                Timestamp = DateTime.UtcNow,
+                Description = "Job Created",
+                Job = job
+            };
+
+            await _auditTrailService.AddAuditTrail(auditTrail);  */
         }
 
         public async Task UpdateJob(Job job)

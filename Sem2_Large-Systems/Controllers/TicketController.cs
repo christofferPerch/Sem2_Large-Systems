@@ -81,5 +81,32 @@ namespace Sem2_Large_Systems.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SendJob(int id)
+        {
+            // Retrieve the ticket by ID
+            var ticket = await _ticketService.GetTicketById(id);
+            if (ticket == null)
+            {
+                return NotFound();
+            }
+
+            // Update ticket status to "Job Sent"
+            ticket.Status = "Job Sent";
+            await _ticketService.UpdateTicket(ticket);
+
+            // Create a new job for the ticket
+            var job = new Job
+            {
+                TicketId = ticket.Id,
+                WarehouseId = 1,  // Adjust based on your logic for selecting warehouse
+                Status = "Created"
+            };
+            await _jobService.AddJob(job);
+
+            // Redirect back to the ticket index view
+            return RedirectToAction("Index");
+        }
+
     }
 }

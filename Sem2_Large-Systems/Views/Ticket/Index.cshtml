@@ -21,8 +21,17 @@
                 <td>@ticket.DriverName</td>
                 <td>@ticket.Status</td>
                 <td>
-                    <!-- Add any other actions related to tickets, e.g., Send Job button -->
-                    <a href="@Url.Action("Details", "Ticket", new { id = ticket.Id })" class="btn btn-info">View Details</a>
+                    <!-- "Send Job" button -->
+                    @if (ticket.Status == "Pending")
+                    {
+                        <form asp-action="SendJob" asp-route-id="@ticket.Id" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-primary">Send Job</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="badge badge-success">Job Sent</span>
+                    }
                 </td>
             </tr>
         }
